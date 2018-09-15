@@ -289,7 +289,11 @@ public class Grafo {
         } catch (NullPointerException e) {
         }
     }
-
+    
+   public void BFS(){
+       
+   }
+   
     public static void main(String[] args) throws IOException {
         int n = 30, m = 200;
         boolean p = true; //true no permite autoarista
