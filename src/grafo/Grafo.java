@@ -8,28 +8,38 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;
-import java.util.Objects;
 import java.util.Random;
+import java.util.ArrayList;
 import java.util.Set;
+import java.util.Stack;
 
 /**
  * @author Alain Gomez Cabrera MCIC
  */
 public class Grafo {
 
-    /**
-     * @param args the command line arguments
-     */
     public static Arista arista;
     public static Nodo nodo;
     public static HashMap<Integer, Nodo> TablaNodos;
     public static HashMap<Integer, Arista> TablaAristas;
+    public static HashMap<Integer, Nodo> TablaNodosTree;
+    public static HashMap<Integer, Arista> TablaAristasTree;
+    public ArrayList<Nodo> ListaNodos;
+    public ArrayList<Arista> ListaAristas;
 
     public Grafo() {
+        HashMap<Integer, Nodo> TablaNodosTree = new HashMap<>();
+        HashMap<Integer, Arista> TablaAristasTree = new HashMap<>();
+        ArrayList<Nodo> ListaNodos = new ArrayList<>();
+        ArrayList<Arista> ListaAristas = new ArrayList<>();
+        this.TablaNodosTree = TablaNodosTree;
+        this.TablaAristasTree = TablaAristasTree;
+        this.ListaNodos = ListaNodos;
+        this.ListaAristas = ListaAristas;
     }
 
     static public HashMap<Integer, Nodo> crearNodos(int n_nodos) {
-        HashMap<Integer, Nodo> TablaNodos = new HashMap<Integer, Nodo>();
+        HashMap<Integer, Nodo> TablaNodos = new HashMap<>();
         for (int i = 1; i <= n_nodos; i++) {
             String name = ("Nodo");
             name = name.concat(String.valueOf(i));
@@ -48,8 +58,8 @@ public class Grafo {
      * @param m numero de aristas
      * @param p true:no permite autoaristas, false: permite autoaristas
      */
-    static public void modeloErdos(int n, int m, boolean p) {
-        HashMap<Integer, Arista> TablaAristas = new HashMap<Integer, Arista>();
+    static public void modeloErdos(int n, int m, boolean p) throws IOException {
+        HashMap<Integer, Arista> TablaAristas = new HashMap<>();
         crearNodos(n);
         int nodo1, nodo2;
         for (int i = 1; i <= m; i++) {
@@ -73,11 +83,12 @@ public class Grafo {
             arista.nodo1 = nodo_aux1.nombre;
             arista.nodo2 = nodo_aux2.nombre;
             //Crear arista
-            arista.ConstruirArista(nodo_aux1.nombre, nodo_aux2.nombre);
+            arista.ConstruirArista(nodo_aux1.nombre, nodo_aux2.nombre, nodo1, nodo2);
             TablaAristas.put(i, arista);
             //Guardar arista
             Grafo.TablaAristas = TablaAristas;
         }
+        Grafo.crearArchivo("C:\\Users\\Alain\\Documents\\Grafos\\ErdosV" + n + "E" + m + ".gv");
     }
 
     /**
@@ -86,8 +97,8 @@ public class Grafo {
      * @param prob probabilidad para creacion de autoarista
      * @param p true:no permite autoaristas, false: permite autoaristas
      */
-    static public void modeloGilbert(int n, double prob, boolean p) {
-        HashMap<Integer, Arista> TablaAristas = new HashMap<Integer, Arista>();
+    static public void modeloGilbert(int n, double prob, boolean p) throws IOException {
+        HashMap<Integer, Arista> TablaAristas = new HashMap<>();
         crearNodos(n);
         int k = 1;
         Nodo nodo_aux1;
@@ -101,7 +112,7 @@ public class Grafo {
                         Arista arista = new Arista();
                         nodo_aux1 = Grafo.TablaNodos.get(i);
                         nodo_aux2 = Grafo.TablaNodos.get(j);
-                        arista.ConstruirArista(nodo_aux1.nombre, nodo_aux2.nombre);
+                        arista.ConstruirArista(nodo_aux1.nombre, nodo_aux2.nombre, i, j);
                         TablaAristas.put(k, arista);
                         k = k + 1;
                         //Si no se desea doble arista entre mismos nodos: n1--n2 n2--n1
@@ -120,7 +131,7 @@ public class Grafo {
                         Arista arista = new Arista();
                         nodo_aux1 = Grafo.TablaNodos.get(i);
                         nodo_aux2 = Grafo.TablaNodos.get(j);
-                        arista.ConstruirArista(nodo_aux1.nombre, nodo_aux2.nombre);
+                        arista.ConstruirArista(nodo_aux1.nombre, nodo_aux2.nombre, i, j);
                         TablaAristas.put(k, arista);
                         k = k + 1;
                         //Si no se desea doble arista entre mismos nodos: n1--n2 n2--n1
@@ -138,6 +149,7 @@ public class Grafo {
         }
         //Guardar aristas
         Grafo.TablaAristas = TablaAristas;
+        Grafo.crearArchivo("C:\\Users\\Alain\\Documents\\Grafos\\GilbertV" + n + "p" + prob + ".gv");
     }
 
     /**
@@ -146,8 +158,8 @@ public class Grafo {
      * @param r distancia minima para unir nodos
      * @param p true:no permite autoaristas, false: permite autoaristas
      */
-    static public void modeloGeografico(int n, double r, boolean p) {
-        HashMap<Integer, Arista> TablaAristas = new HashMap<Integer, Arista>();
+    static public void modeloGeografico(int n, double r, boolean p) throws IOException {
+        HashMap<Integer, Arista> TablaAristas = new HashMap<>();
         int k = 1;
         double distance;
         Nodo nodo_aux1;
@@ -163,7 +175,7 @@ public class Grafo {
                     //Si no se permite autoarista
                     if (distance <= r && (i != j)) {
                         Arista arista = new Arista();
-                        arista.ConstruirArista(nodo_aux1.nombre, nodo_aux2.nombre);
+                        arista.ConstruirArista(nodo_aux1.nombre, nodo_aux2.nombre, i, j);
                         TablaAristas.put(k, arista);
                         k = k + 1;
                         //Si no se desea doble arista entre mismos nodos: n1--n2 n2--n1
@@ -180,7 +192,7 @@ public class Grafo {
                     //Si se permite autoarista
                     if (distance <= r) {
                         Arista arista = new Arista();
-                        arista.ConstruirArista(nodo_aux1.nombre, nodo_aux2.nombre);
+                        arista.ConstruirArista(nodo_aux1.nombre, nodo_aux2.nombre, i, j);
                         TablaAristas.put(k, arista);
                         k = k + 1;
                         //Si no se desea doble arista entre mismos nodos: n1--n2 n2--n1
@@ -197,6 +209,8 @@ public class Grafo {
             }
         }
         Grafo.TablaAristas = TablaAristas;
+        int pr = (int) (r * 100);
+        Grafo.crearArchivo("C:\\Users\\Alain\\Documents\\Grafos\\GeograficoV" + n + "r" + pr + ".gv");
     }
 
     /**
@@ -205,10 +219,10 @@ public class Grafo {
      * @param d grado del nodo
      * @param p true:no permite autoaristas, false: permite autoaristas
      */
-    static public void modeloBarabasi(int n, double d, boolean p) {
-        HashMap<Integer, Nodo> TablaNodos = new HashMap<Integer, Nodo>();
-        HashMap<Integer, Arista> TablaAristas = new HashMap<Integer, Arista>();
-        int k = 1, c;
+    static public void modeloBarabasi(int n, double d, boolean p) throws IOException {
+        HashMap<Integer, Nodo> TablaNodos = new HashMap<>();
+        HashMap<Integer, Arista> TablaAristas = new HashMap<>();
+        int k = 1, c, x;
         double prob;
         Nodo nodo_aux1;
         Nodo nodo_aux2;
@@ -231,10 +245,11 @@ public class Grafo {
                 nodo_aux1 = TablaNodos.get(mentry.getKey());
                 prob = 1 - nodo_aux1.getGrado() / d;
                 double pr = Math.random();
+                x = (int) mentry.getKey();
                 if (pr <= prob && nodo_aux2.grado < d) {
                     Arista arista = new Arista();
                     if (!p) {
-                        arista.ConstruirArista(nodo_aux1.nombre, nodo_aux2.nombre);
+                        arista.ConstruirArista(nodo_aux1.nombre, nodo_aux2.nombre, x, i);
                         TablaAristas.put(k, arista);
                         k = k + 1;
                         c = (int) mentry.getKey();
@@ -244,7 +259,7 @@ public class Grafo {
                         TablaNodos.put(i, nodo_aux2);
                     } else {
                         if (nodo_aux1.nombre != nodo_aux2.nombre) {
-                            arista.ConstruirArista(nodo_aux1.nombre, nodo_aux2.nombre);
+                            arista.ConstruirArista(nodo_aux1.nombre, nodo_aux2.nombre, x, i);
                             TablaAristas.put(k, arista);
                             k = k + 1;
                             c = (int) mentry.getKey();
@@ -259,6 +274,7 @@ public class Grafo {
         }
         Grafo.TablaAristas = TablaAristas;
         Grafo.TablaNodos = TablaNodos;
+        Grafo.crearArchivo("C:\\Users\\Alain\\Documents\\Grafos\\BarabasiV" + n + "d" + d + ".gv");
     }
 
     /**
@@ -266,8 +282,7 @@ public class Grafo {
      *
      * @throws IOException
      */
-    static public void crearArchivo() throws IOException {
-        String idFichero = "C:\\Users\\Alain\\Documents\\Grafos\\Grafo.gv";
+    static public void crearArchivo(String idFichero) throws IOException {
         Set set = Grafo.TablaNodos.entrySet();
         String newline = System.getProperty("line.separator");
         PrintWriter ficheroSalida = new PrintWriter(idFichero);
@@ -289,19 +304,257 @@ public class Grafo {
         } catch (NullPointerException e) {
         }
     }
-    
-   public void BFS(){
-       
-   }
-   
+
+    public void BFS(Grafo grafo1, int nodoRaiz) throws IOException {
+        int z, NumNodosGraf;
+        HashMap<Integer, Nodo> Nodos = new HashMap<>();
+        HashMap<Integer, Arista> Aristas = new HashMap<>();
+        HashMap<Integer, Arista> AristasBFS = new HashMap<>();
+        HashMap<Integer, Nodo> NodosBFS = new HashMap<>();
+        Nodos = grafo1.TablaNodos;
+        Aristas = grafo1.TablaAristas;
+        NumNodosGraf = Nodos.size();
+        boolean[] discovered;
+        discovered = new boolean[NumNodosGraf];
+        ArrayList<Integer> cola;
+        ArrayList<Integer> cola_aux;
+        int nodo_2;
+        int nodo_1;
+        ArrayList<Integer> Lista_aux = new ArrayList<>();
+        Lista_aux.add(nodoRaiz);
+        Nodo nodobfs = new Nodo("nodo" + nodoRaiz);
+        NodosBFS.put(0, nodobfs);
+        Arista arista;
+        ArrayList<ArrayList<Integer>> Capas = new ArrayList<>();
+        z = 0;
+        Capas.add(z, Lista_aux);
+        discovered[0] = true;
+        Set set = Aristas.entrySet();
+        Iterator iterator;
+        cola = new ArrayList<>();
+        cola_aux = new ArrayList<>();
+        int k = 0;
+        int n = 1;
+        int keybfs = 0;
+        while (!Capas.get(k).isEmpty()) {
+            cola_aux = new ArrayList<>();
+            cola = new ArrayList<>();
+            Capas.add(k + 1, cola_aux);
+            for (int c = 0; c <= Capas.get(k).size() - 1; c++) {
+                cola_aux = new ArrayList<>();
+                cola = new ArrayList<>();
+                n = Capas.get(k).get(c);
+                set = Aristas.entrySet();
+                iterator = set.iterator();
+                while (iterator.hasNext()) {
+                    arista = new Arista();
+                    Map.Entry mentry = (Map.Entry) iterator.next();
+                    arista = Aristas.get((int) mentry.getKey());
+                    nodo_1 = arista.nodoint1;
+                    if ((nodo_1 == n)) {
+                        nodo_2 = arista.nodoint2;
+                        cola.add(nodo_2);
+                    }
+                    if ((arista.nodoint2 == n)) {
+                        nodo_2 = arista.nodoint1;
+                        cola.add(nodo_2);
+                    }
+                }
+                for (int j = 0; j <= (cola.size() - 1); j++) {
+                    if (discovered[cola.get(j) - 1] == false) {
+                        discovered[cola.get(j) - 1] = true;
+                        int num = cola.get(j);
+                        Capas.get(k + 1).add(num);
+                        Arista aristabfs = new Arista();
+                        aristabfs.ConstruirArista("nodo" + n, "nodo" + num, n, num);
+                        AristasBFS.put(keybfs, aristabfs);
+                        keybfs = keybfs + 1;
+                        nodobfs = new Nodo("nodo" + num);
+                        NodosBFS.put(keybfs, nodobfs);
+                    }
+                }
+            }
+            n = n + 1;
+            k = k + 1;
+            grafo1.TablaNodosTree = NodosBFS;
+            grafo1.TablaAristasTree = AristasBFS;
+        }
+    }
+
+    public void crearBFS(Grafo grafo1, int nodoRaiz) throws IOException {
+        BFS(grafo1, nodoRaiz);
+        String fichero = "C:\\Users\\Alain\\Documents\\Grafos\\TreeBFS.gv";
+        Set set = grafo1.TablaNodosTree.entrySet();
+        String newline = System.getProperty("line.separator");
+        PrintWriter ficheroSalida = new PrintWriter(fichero);
+        ficheroSalida.print("graph grafoTree {" + newline);
+        Iterator iterator2 = set.iterator();
+        try {
+            while (iterator2.hasNext()) {
+                Map.Entry mentry2 = (Map.Entry) iterator2.next();
+                ficheroSalida.print(mentry2.getValue() + ";" + newline);
+            }
+            set = grafo1.TablaAristasTree.entrySet();
+            Iterator iterator = set.iterator();
+            while (iterator.hasNext()) {
+                Map.Entry mentry = (Map.Entry) iterator.next();
+                ficheroSalida.print(mentry.getValue() + newline);
+            }
+            ficheroSalida.print("}");
+            ficheroSalida.close();
+        } catch (NullPointerException e) {
+        }
+    }
+
+    public void DFS_R(Grafo grafo1, int nodoRaiz) throws IOException {
+        int nodo_2, nodo_1;
+        Nodo nodo_aux, nodo_aux1, nodo_aux2;
+        nodo_aux = new Nodo("nodo" + nodoRaiz);
+        Set set = grafo1.TablaAristas.entrySet();
+        Iterator iterator;
+        nodo_aux = grafo1.TablaNodos.get(nodoRaiz);
+        nodo_aux.descubierto = true;
+        grafo1.TablaNodos.put(nodoRaiz, nodo_aux);
+        grafo1.ListaNodos.add(nodo_aux);
+        set = grafo1.TablaAristas.entrySet();
+        iterator = set.iterator();
+        while (iterator.hasNext()) {
+            arista = new Arista();
+            Map.Entry mentry = (Map.Entry) iterator.next();
+            arista = grafo1.TablaAristas.get((int) mentry.getKey());
+            nodo_1 = arista.nodoint1;
+            nodo_2 = arista.nodoint2;
+            nodo_aux2 = new Nodo("Nodo" + arista.nodoint2);
+            nodo_aux2 = grafo1.TablaNodos.get(arista.nodoint2);
+            nodo_aux1 = new Nodo("Nodo" + arista.nodoint1);
+            nodo_aux1 = grafo1.TablaNodos.get(arista.nodoint1);
+            
+            if (nodoRaiz == nodo_1 && (nodo_aux2.descubierto) == false) {
+                Arista aristadfs = new Arista();
+                aristadfs.ConstruirArista("Nodo" + nodo_1, "Nodo" + nodo_2, nodo_1, nodo_2);
+                grafo1.ListaAristas.add(0, aristadfs);
+                DFS_R(grafo1, nodo_2);
+            }           
+            if (nodoRaiz == nodo_2 && (nodo_aux1.descubierto) == false) {
+                Arista aristadfs = new Arista();
+                aristadfs.ConstruirArista("Nodo" + nodo_2, "Nodo" + nodo_1, nodo_2, nodo_1);
+                grafo1.ListaAristas.add(0, aristadfs);
+                DFS_R(grafo1, nodo_1);
+            }
+        }
+    }
+
+    public void crearDFS_R(Grafo grafo1, int nodoRaiz) throws IOException {
+        grafo1.ListaNodos.clear();
+        grafo1.ListaAristas.clear();
+        DFS_R(grafo1, nodoRaiz);
+        String fichero = "C:\\Users\\Alain\\Documents\\Grafos\\TreeDFS_R.gv";
+        String newline = System.getProperty("line.separator");
+        PrintWriter ficheroSalida = new PrintWriter(fichero);
+        ficheroSalida.print("graph grafoTreeDFS_R {" + newline);
+        for (int r = 0; r < grafo1.ListaNodos.size(); r++) {
+            ficheroSalida.print(grafo1.ListaNodos.get(r) + ";" + newline);
+        }
+        for (int r = 0; r < grafo1.ListaAristas.size(); r++) {
+            ficheroSalida.print(grafo1.ListaAristas.get(r) + newline);
+        }
+        ficheroSalida.print("}");
+        ficheroSalida.close();
+    }
+
+    public void DFS_I(Grafo grafo1, int nodoRaiz) throws IOException {
+        int nodo_2, nodo_1;
+        Nodo nodo_aux, nodo_aux1, nodo_aux2;
+        Stack<Nodo> pila = new Stack<>();
+        nodo_aux = grafo1.TablaNodos.get(nodoRaiz);
+        nodo_aux.descubierto = true;
+        pila.push(nodo_aux);
+        grafo1.TablaNodos.put(nodoRaiz, nodo_aux);
+        grafo1.ListaNodos.add(nodo_aux);
+        Set set = grafo1.TablaAristas.entrySet();
+        Iterator iterator;
+        iterator = set.iterator();
+        boolean encontrar = false;
+        while (!pila.isEmpty()) {
+            encontrar = false;
+            iterator = set.iterator();
+            while (iterator.hasNext() && encontrar == false) {
+
+                arista = new Arista();
+                Map.Entry mentry = (Map.Entry) iterator.next();
+                arista = grafo1.TablaAristas.get((int) mentry.getKey());
+                nodo_1 = arista.nodoint1;
+                nodo_2 = arista.nodoint2;
+                nodo_aux2 = new Nodo("Nodo");
+                nodo_aux2 = grafo1.TablaNodos.get(arista.nodoint2);
+                nodo_aux1 = new Nodo("Nodo");
+                nodo_aux1 = grafo1.TablaNodos.get(arista.nodoint1);
+
+                if (nodoRaiz == nodo_1 && (nodo_aux2.descubierto) == false) {
+                    pila.push(nodo_aux2);
+                    nodo_aux = new Nodo("Nodo" + nodo_2);
+                    nodo_aux.descubierto = true;
+                    grafo1.TablaNodos.put(nodo_2, nodo_aux);
+                    nodoRaiz = nodo_2;
+                    encontrar = true;
+                    grafo1.ListaNodos.add(0, nodo_aux);
+                    Arista aristadfs = new Arista();
+                    aristadfs.ConstruirArista("Nodo" + nodo_1, "Nodo" + nodo_2, nodo_1, nodo_2);
+                    grafo1.ListaAristas.add(0, aristadfs);
+                }
+                if (nodoRaiz == nodo_2 && (nodo_aux1.descubierto) == false) {
+                    pila.push(nodo_aux1);
+                    nodo_aux = new Nodo("Nodo" + nodo_1);
+                    nodo_aux.descubierto = true;
+                    grafo1.TablaNodos.put(nodo_1, nodo_aux);
+                    nodoRaiz = nodo_1;
+                    encontrar = true;
+                    grafo1.ListaNodos.add(0, nodo_aux);
+                    Arista aristadfs = new Arista();
+                    aristadfs.ConstruirArista("Nodo" + nodo_2, "Nodo" + nodo_1, nodo_2, nodo_1);
+                    grafo1.ListaAristas.add(0, aristadfs);
+                }    
+            }
+            if (encontrar == false) {
+                pila.pop();
+                if (!pila.isEmpty()) {
+                    nodoRaiz = Integer.parseInt(pila.peek().nombre.substring(4));
+                }
+            }
+        }
+    }
+
+    public void crearDFS_I(Grafo grafo1, int nodoRaiz) throws IOException {
+        DFS_I(grafo1, nodoRaiz);
+        String fichero = "C:\\Users\\Alain\\Documents\\Grafos\\TreeDFS_I.gv";
+        String newline = System.getProperty("line.separator");
+        PrintWriter ficheroSalida = new PrintWriter(fichero);
+        ficheroSalida.print("graph grafoTreeDFS_I {" + newline);
+        for (int r = 0; r < grafo1.ListaNodos.size(); r++) {
+            ficheroSalida.print(grafo1.ListaNodos.get(r) + ";" + newline);
+        }
+        for (int r = 0; r < grafo1.ListaAristas.size(); r++) {
+            ficheroSalida.print(grafo1.ListaAristas.get(r) + newline);
+        }
+        ficheroSalida.print("}");
+        ficheroSalida.close();
+    }
+
     public static void main(String[] args) throws IOException {
-        int n = 30, m = 200;
+        int n = 500, m = 200;
         boolean p = true; //true no permite autoarista
-        double prob = 0.3;
-        Grafo.modeloErdos(n, m, p);
-        //Grafo.modeloGilbert(n, prob, p);
-        //Grafo.modeloBarabasi(n, 20, p);
-        //Grafo.modeloGeografico(n, 0.5, p);
-        Grafo.crearArchivo();
+        double prob = 0.1;
+        Grafo grafo1 = new Grafo();
+
+        //Metodos de construccion
+        //grafo1.modeloErdos(n, m, p);
+        //grafo1.modeloGilbert(n, prob, p);
+        //grafo1.modeloBarabasi(n, 12, p);
+        grafo1.modeloGeografico(n, 0.25, p);
+
+        //Construir arboles
+        grafo1.crearBFS(grafo1, 1);
+        grafo1.crearDFS_R(grafo1, 1);
+        grafo1.crearDFS_I(grafo1, 1);
     }
 }

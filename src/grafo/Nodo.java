@@ -15,9 +15,11 @@ public class Nodo {
     double pos_x;
     double pos_y;
     String nombre;
+    boolean descubierto;
     
     public Nodo(String nombre){
-    this.nombre=nombre;    
+    this.nombre=nombre;
+    this.descubierto=false;
     }
 public void Nodo(){
     this.grado=0;
