@@ -11,11 +11,13 @@ package grafo;
  */
 public class Nodo {
     int color;
+    int valor;
     double grado;
     double pos_x;
     double pos_y;
     String nombre;
     boolean descubierto;
+    double distancia;
     
     public Nodo(String nombre){
     this.nombre=nombre;

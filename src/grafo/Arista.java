@@ -11,6 +11,7 @@ package grafo;
 public class Arista {
     public int nombre;
     public int color; 
+    public float peso=1;
     public String nodo1;
     public String nodo2;
     public int nodoint1;
@@ -30,3 +31,4 @@ public class Arista {
    return this.nodosjuntos;
 }
 }
+
