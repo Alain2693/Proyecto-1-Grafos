@@ -857,7 +857,7 @@ public class Grafo {
     }
 
     public static void main(String[] args) throws IOException {
-        int n = 5, m = 500;
+        int n = 5, m = 15;
         int d;
         boolean p = true; //true no permite autoarista
         double prob = 0.5;
@@ -888,8 +888,9 @@ public class Grafo {
         //grafo1.Dijkstra(1);
         
         //Arbol de expansion minima
-        grafo1.kruskal_D();
-        //grafo1.kruskal_I();
         grafo1.Prim(1);
+        grafo1.kruskal_D();
+        grafo1.kruskal_I();
+        
     }
 }
