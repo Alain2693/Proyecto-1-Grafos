@@ -8,7 +8,7 @@ package grafo;
  *
  * @author Alain
  */
-public class Arista {
+public class Arista implements Comparable<Arista> {
     public int nombre;
     public int color; 
     public float peso=1;
@@ -30,5 +30,9 @@ public class Arista {
 {
    return this.nodosjuntos;
 }
+    
+    public int compareTo(Arista arista) {
+        return this.peso > arista.peso ? 1 : this.peso < arista.peso ? -1 : 0;
+    }
 }
 

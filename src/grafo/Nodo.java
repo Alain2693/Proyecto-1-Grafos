@@ -4,20 +4,21 @@
  * and open the template in the editor.
  */
 package grafo;
-
+import java.util.ArrayList;
 /**
  *
  * @author Alain
  */
 public class Nodo {
-    int color;
-    int valor;
+    public int color;
+    public int valor;
     double grado;
     double pos_x;
     double pos_y;
     String nombre;
     boolean descubierto;
     double distancia;
+    public ArrayList<Integer> ConjuntoConectado;
     
     public Nodo(String nombre){
     this.nombre=nombre;
